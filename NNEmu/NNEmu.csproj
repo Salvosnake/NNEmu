@@ -13,13 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="PixelEngine">
-      <HintPath>..\..\..\..\Documents\GitHub\Pixel-Engine\Libraries\PixelEngine.dll</HintPath>
-    </Reference>
+    <Folder Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Utils\" />
+    <Reference Include="PixelEngine">
+      <HintPath>Libs\PixelEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
