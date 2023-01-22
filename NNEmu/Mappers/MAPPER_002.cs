@@ -1,12 +1,13 @@
 ﻿namespace NNEmu.Hardware.Mappers
 {
-    public class MAPPER_000 : MAPPER
+    public class MAPPER_002 : MAPPER
     {
+        private byte NPRGBanks;
+        private byte NCHRBanks;
+        private byte NPRGBankselectLo = 0;
+        private byte NPRGBankselectHi = 0;
 
-        public byte NPRGBanks;
-        public byte NCHRBanks;
-
-        public MAPPER_000(byte NPRGBanks, byte NCHRBanks) 
+        public MAPPER_002(byte NPRGBanks, byte NCHRBanks) 
         {
             this.NPRGBanks = NPRGBanks;
             this.NCHRBanks = NCHRBanks;
@@ -14,11 +15,17 @@
 
         public bool CpuMapRead(ushort addr, out uint mapped_addr, out byte data)
         {
-            data= 0;
-            mapped_addr = 0;	
-            if (addr >= 0x8000 && addr <= 0xFFFF)
+            mapped_addr = 0; 
+            data = 0;
+            if (addr >= 0x8000 && addr <= 0xBFFF)
             {
-                mapped_addr = (uint)(addr & (NPRGBanks > 1 ? 0x7FFF : 0x3FFF));
+                mapped_addr = (uint)(NPRGBankselectLo * 0x4000 + (addr & 0x3FFF));
+                return true;
+            }
+
+            if (addr >= 0xC000 && addr <= 0xFFFF)
+            {
+                mapped_addr = (uint)(NPRGBankselectHi * 0x4000 + (addr & 0x3FFF));
                 return true;
             }
 
@@ -27,35 +34,32 @@
 
         public bool CpuMapWrite(ushort addr, out uint mapped_addr, out byte data)
         {
-            data= 0;
+            mapped_addr = 0;
+            data = 0;
             if (addr >= 0x8000 && addr <= 0xFFFF)
             {
-                mapped_addr = (uint)(addr & (NPRGBanks > 1 ? 0x7FFF : 0x3FFF));
-                return true;
+                NPRGBankselectLo = (byte)(data & 0x0F);
             }
-            else
-                mapped_addr = 0;
 
             return false;
         }
 
         public bool PpuMapRead(ushort addr,out uint mapped_addr)
         {
-            if (addr >= 0x0000 && addr <= 0x1FFF)
+            mapped_addr = 0;
+            if (addr < 0x2000)
             {
                 mapped_addr = addr;
                 return true;
             }
             else
-                mapped_addr = 0;
-
-            return false;
+                return false;
         }
 
         public bool PpuMapWrite(ushort addr, out uint mapped_addr)
         {
             mapped_addr = 0;
-            if (addr >= 0x0000 && addr <= 0x1FFF)
+            if (addr < 0x2000)
             {
                 if (NCHRBanks == 0)
                 {
@@ -63,14 +67,12 @@
                     return true;
                 }
             }
-
             return false;
         }
-
         public void Reset()
         {
-
+            NPRGBankselectLo = 0;
+            NPRGBankselectHi = (byte)(NPRGBanks - 1);
         }
-
     }
 }

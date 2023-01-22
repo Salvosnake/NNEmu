@@ -11,6 +11,8 @@ namespace NNEmu.Hardware
         {
             HORIZONTAL,
             VERTICAL,
+            ONESCREEN_LO,
+            ONESCREEN_HI,
         }
 
         public MIRROR Mirror;
@@ -64,6 +66,21 @@ namespace NNEmu.Hardware
                 case 0:
                     PMapper = new MAPPER_000(NPRGBanks, NCHRBanks);
                     break;
+                case 1: 
+                    PMapper = new MAPPER_001(NPRGBanks, NCHRBanks);
+                    break;
+                case 2:
+                    PMapper = new MAPPER_002(NPRGBanks, NCHRBanks);
+                    break;
+                case 3: 
+                    PMapper = new MAPPER_003(NPRGBanks, NCHRBanks);
+                    break;
+                case 4:
+                    PMapper = new MAPPER_004(NPRGBanks, NCHRBanks);
+                    break;
+                case  66: 
+                    PMapper = new MAPPER_066(NPRGBanks, NCHRBanks);
+                    break;
                 default:
                     PMapper = new MAPPER_000(NPRGBanks, NCHRBanks);
                     break;
@@ -99,10 +116,14 @@ namespace NNEmu.Hardware
 
         public bool CpuRead(ushort addr, out byte data)
         {
+            data = 0;
             uint mapped_addr;
-            if (PMapper.CpuMapRead(addr, out mapped_addr))
+            if (PMapper.CpuMapRead(addr, out mapped_addr, out data))
             {
-                data = VPRGMemory[mapped_addr];
+                if (mapped_addr == 0xFFFFFFFF)
+                    return true;
+                else
+                    data = VPRGMemory[mapped_addr];
                 return true;
             }
             else
@@ -115,9 +136,12 @@ namespace NNEmu.Hardware
         public bool CpuWrite(ushort addr, byte data)
         {
             uint mapped_addr;
-            if (PMapper.CpuMapWrite(addr, out mapped_addr))
+            if (PMapper.CpuMapWrite(addr, out mapped_addr, out data))
             {
-                VPRGMemory[mapped_addr] = data;
+                if (mapped_addr == 0xFFFFFFFF)
+                    return true;
+                else
+                    VPRGMemory[mapped_addr] = data;
                 return true;
             }
             else
