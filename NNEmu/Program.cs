@@ -7,7 +7,7 @@ namespace NNEmu
     {
         public static volatile CARTRIDGE? cart;
         public static volatile BUS? nes;
-        public static bool EmulationRun = true;
+        public static volatile bool EmulationRun = true;
         private static bool Debug = false;
         public static void Main(string[] args)
         {

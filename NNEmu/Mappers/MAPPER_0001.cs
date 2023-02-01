@@ -28,9 +28,8 @@ namespace NNEmu.Hardware.Mappers
             VRAMStatic = new byte[32 * 1024];
         } 
 
-        public bool CpuMapRead(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapRead(ushort addr, out uint mapped_addr, ref byte data)
         {
-            data = 0;
             mapped_addr = 0;
 
             if (addr >= 0x6000 && addr <= 0x7FFF)
@@ -68,9 +67,8 @@ namespace NNEmu.Hardware.Mappers
             return false;
         }
 
-        public bool CpuMapWrite(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapWrite(ushort addr, out uint mapped_addr, ref byte data)
         {
-            data = 0;
             mapped_addr = 0;
             if (addr >= 0x6000 && addr <= 0x7FFF)
             {
@@ -235,5 +233,17 @@ namespace NNEmu.Hardware.Mappers
             return MirrorMode;
         }
 
+        public bool IrqState()
+        {
+            return false;
+        }
+
+        public void IrqClear()
+        {
+        }
+
+        public void Scanline()
+        {
+        }
     }
 }

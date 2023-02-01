@@ -1,4 +1,5 @@
 ﻿using PixelEngine;
+using System.Threading.Tasks;
 
 namespace NNEmu.Hardware
 {
@@ -24,7 +25,8 @@ namespace NNEmu.Hardware
                 }
                 set
                 {
-                    Unused = (byte)(value & 0x1F);
+                    //Unused = (byte)(value & 0x1F); 
+                    Unused = 0;
                     SpriteOverflow = (byte)((value & 0x20) >> 5);
                     SpriteZeroHit = (byte)((value & 0x40) >> 6);
                     VerticalBlank = (byte)((value & 0x80) >> 7);
@@ -165,6 +167,7 @@ namespace NNEmu.Hardware
         private ushort BgShifterAttribLo = 0;
         private ushort BgShifterAttribHi = 0;
         private byte MemoryOAMAddr = 0;
+        private bool OddFrame = false;
         private GpuAttributeEntry[] SpriteScanline = new GpuAttributeEntry[8];
         private byte SpriteCount;
         private byte[] SpriteShifterPatternLo = new byte[8];
@@ -305,7 +308,7 @@ namespace NNEmu.Hardware
 
                         for (ushort col = 0; col < 8; col++)
                         {
-                            byte pixel = (byte)((tile_lsb & 0x01) << 1 | (tile_msb & 0x01));
+                            byte pixel = (byte)((tile_msb & 0x01) << 1 | (tile_lsb & 0x01));
 
                             tile_lsb >>= 1; tile_msb >>= 1;
 
@@ -489,7 +492,7 @@ namespace NNEmu.Hardware
 
         public byte PpuRead(ushort addr, bool? rdonly = false)
         {
-            byte data = 0x00;
+            byte data = 0;
             addr &= 0x3FFF;
 
             if (Cartridge.PpuRead(addr, out data))
@@ -611,13 +614,14 @@ namespace NNEmu.Hardware
             GpuControl.Reg = 0;
             VramAddr.Reg = 0;
             TramAddr.Reg = 0;
+            OddFrame = false;
         }
 
         public void Clock()
         {
             if (Scanline >= -1 && Scanline < 240)
             {
-                if (Scanline == 0 && Cycle == 0)
+                if (Scanline == 0 && Cycle == 0 && OddFrame && (GpuMask.RenderBackground || GpuMask.RenderSprites))
                 {
                     Cycle = 1;
                 }
@@ -727,7 +731,7 @@ namespace NNEmu.Hardware
 
                         short diff = (short)(Scanline - MemoryOAM[nMemoryOAMEntry].Y);
 
-                        if (diff >= 0 && diff < (GpuControl.SpriteSize > 0 ? 16 : 8))
+                        if (diff >= 0 && diff < (GpuControl.SpriteSize > 0 ? 16 : 8) && SpriteCount < 8)
                         {
 
                             if (SpriteCount < 8)
@@ -745,7 +749,7 @@ namespace NNEmu.Hardware
                         nMemoryOAMEntry++;
                     }
 
-                    GpuStatus.SpriteOverflow = (byte)((SpriteCount > 8) ? 1 : 0);
+                    GpuStatus.SpriteOverflow = (byte)((SpriteCount >= 8) ? 1 : 0);
                 }
 
                 if (Cycle == 340)
@@ -872,30 +876,32 @@ namespace NNEmu.Hardware
 
             if (GpuMask.RenderSprites)
             {
-
-                BSpriteZeroBeingRendered = false;
-
-                for (byte i = 0; i < SpriteCount; i++)
+                if (GpuMask.RenderSpritesLeft || (Cycle >= 9))
                 {
-                    if (SpriteScanline[i].X == 0)
+                    BSpriteZeroBeingRendered = false;
+
+                    for (byte i = 0; i < SpriteCount; i++)
                     {
-
-                        byte fg_pixel_lo = (byte)((SpriteShifterPatternLo[i] & 0x80) > 0 ? 1 : 0);
-                        byte fg_pixel_hi = (byte)((SpriteShifterPatternHi[i] & 0x80) > 0 ? 1 : 0);
-                        fg_pixel = (byte)((fg_pixel_hi << 1) | fg_pixel_lo);
-
-                        fg_palette = (byte)((SpriteScanline[i].Attribute & 0x03) + 0x04);
-                        fg_priority = (byte)((SpriteScanline[i].Attribute & 0x20) == 0 ? 1 : 0);
-
-
-                        if (fg_pixel != 0)
+                        if (SpriteScanline[i].X == 0)
                         {
-                            if (i == 0)
-                            {
-                                BSpriteZeroBeingRendered = true;
-                            }
 
-                            break;
+                            byte fg_pixel_lo = (byte)((SpriteShifterPatternLo[i] & 0x80) > 0 ? 1 : 0);
+                            byte fg_pixel_hi = (byte)((SpriteShifterPatternHi[i] & 0x80) > 0 ? 1 : 0);
+                            fg_pixel = (byte)((fg_pixel_hi << 1) | fg_pixel_lo);
+
+                            fg_palette = (byte)((SpriteScanline[i].Attribute & 0x03) + 0x04);
+                            fg_priority = (byte)((SpriteScanline[i].Attribute & 0x20) == 0 ? 1 : 0);
+
+
+                            if (fg_pixel != 0)
+                            {
+                                if (i == 0)
+                                {
+                                    BSpriteZeroBeingRendered = true;
+                                }
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -958,6 +964,14 @@ namespace NNEmu.Hardware
             SprScreen.SetPixel(Cycle - 1, Scanline, GetColourFromPaletteRam(palette, pixel));
 
             Cycle++;
+
+            if (GpuMask.RenderBackground || GpuMask.RenderSprites)
+            {
+                if (Cycle == 260 && Scanline < 240)
+                {
+                    Cartridge.GetMapper().Scanline();
+                }
+            }
             if (Cycle >= 341)
             {
                 Cycle = 0;
@@ -966,6 +980,7 @@ namespace NNEmu.Hardware
                 {
                     Scanline = -1;
                     FrameComplete = true;
+                    OddFrame = !OddFrame;
                 }
             }
         }

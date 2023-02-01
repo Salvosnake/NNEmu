@@ -27,9 +27,8 @@ namespace NNEmu.Hardware.Mappers
             this.NCHRBanks = NCHRBanks;
         } 
 
-        public bool CpuMapRead(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapRead(ushort addr, out uint mapped_addr, ref byte data)
         {
-            data = 0;
             mapped_addr = 0;
             if (addr >= 0x6000 && addr <= 0x7FFF)
             {
@@ -68,9 +67,8 @@ namespace NNEmu.Hardware.Mappers
             return false;
         }
 
-        public bool CpuMapWrite(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapWrite(ushort addr, out uint mapped_addr, ref byte data)
         {
-            data = 0;
             mapped_addr = 0;
             if (addr >= 0x6000 && addr <= 0x7FFF)
             {
@@ -243,7 +241,7 @@ namespace NNEmu.Hardware.Mappers
 
         public void Reset()
         {
-            NTargetRegister = 0x00;
+            NTargetRegister = 0;
             BPRGBankMode = false;
             BCHRInversion = false;
             MirrorMode = MIRROR.HORIZONTAL;
@@ -252,8 +250,14 @@ namespace NNEmu.Hardware.Mappers
             BIRQCounter = 0;
             BIRQReload = 0;
 
-            for (int i = 0; i < 4; i++) PPRGBank[i] = 0;
-            for (int i = 0; i < 8; i++) { PCHRBank[i] = 0; PRegister[i] = 0; }
+            for (int i = 0; i < 4; i++) 
+                PPRGBank[i] = 0;
+
+            for (int i = 0; i < 8; i++) 
+            { 
+                PCHRBank[i] = 0; 
+                PRegister[i] = 0; 
+            }
 
             PPRGBank[0] = 0 * 0x2000;
             PPRGBank[1] = 1 * 0x2000;

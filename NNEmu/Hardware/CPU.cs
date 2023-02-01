@@ -53,6 +53,7 @@ namespace NNEmu.Hardware
         private ushort Addr_rel = 0;
         private byte Opcode = 0;
         private byte Cycles = 0;
+        private ulong CpuClockCount = 0;
 
         // Riferimento al BUS
         private BUS Bus;
@@ -304,11 +305,13 @@ namespace NNEmu.Hardware
 
             if (Cycles == 0)
             {
-
                 Opcode = Read(Pc);
                 SetFlag(FLAGS6502.U, true);
 
                 Pc++;
+
+                //Debug test
+                //File.AppendAllText("C:\\temp\\nnemu.txt", Opcode + " | " + Pc + " | " + A + " | " + X + " | " + Y + " | " + CpuClockCount + "\n");
 
                 Cycles = Lookup[Opcode].Cycles;
 
@@ -322,7 +325,7 @@ namespace NNEmu.Hardware
             }
 
             Cycles--;
-            
+            CpuClockCount++;
         }
 
         //I nomi delle funzioni della CPU sono standard, guardare il manuale per capire cosa fanno.

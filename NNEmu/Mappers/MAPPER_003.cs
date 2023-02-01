@@ -13,10 +13,9 @@
             this.NCHRBanks = NCHRBanks;
         } 
 
-        public bool CpuMapRead(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapRead(ushort addr, out uint mapped_addr, ref byte data)
         {
             mapped_addr = 0;
-            data = 0;
             if (addr >= 0x8000 && addr <= 0xFFFF)
             {
                 if (NPRGBanks == 1) // 16K ROM 
@@ -29,9 +28,8 @@
                 return false;
         }
 
-        public bool CpuMapWrite(ushort addr, out uint mapped_addr, out byte data)
+        public bool CpuMapWrite(ushort addr, out uint mapped_addr, ref byte data)
         {
-            data = 0;
             mapped_addr = 0;
             if (addr >= 0x8000 && addr <= 0xFFFF)
             {
@@ -39,6 +37,15 @@
                 mapped_addr = addr;
             }
 
+            return false;
+        }
+
+        public void IrqClear()
+        {
+        }
+
+        public bool IrqState()
+        {
             return false;
         }
 
@@ -65,5 +72,8 @@
             NCHRBankSelect = 0;
         }
 
+        public void Scanline()
+        {
+        }
     }
 }

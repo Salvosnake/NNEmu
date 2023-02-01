@@ -79,8 +79,8 @@
 
         public void Reset()
         {
-            Cpu.Reset();
             Cart.Reset();
+            Cpu.Reset();
             Gpu.Reset();
             SystemClockCounter = 0;
             dmaPage = 0;
@@ -143,6 +143,13 @@
             {
                 Gpu.Nmi = false;
                 Cpu.Nmi();
+            }
+
+            // Check if cartridge is requesting IRQ
+            if (Cart.GetMapper().IrqState())
+            {
+                Cart.GetMapper().IrqClear();
+                Cpu.Irq();
             }
 
             SystemClockCounter++;
