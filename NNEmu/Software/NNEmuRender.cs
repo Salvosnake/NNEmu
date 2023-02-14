@@ -65,6 +65,8 @@ namespace NNEmu.Software
             GL.DeleteTexture(id);
             SwapBuffers();
 
+            //Clear buffer
+            ClearBufferDisplay();
         }
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
@@ -150,6 +152,12 @@ namespace NNEmu.Software
                 default:
                     break;
             }
+        }
+
+        private void ClearBufferDisplay()
+        {
+            for (int i = 0; i < displayBuffer.Length; i++)
+                displayBuffer[i] = 0;
         }
         
     }
