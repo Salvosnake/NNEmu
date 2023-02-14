@@ -1,9 +1,7 @@
-﻿using NNEmu.Hardware;
-using NNEmu.Software;
+﻿using NNEmu.Software;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace NNEmu
 {

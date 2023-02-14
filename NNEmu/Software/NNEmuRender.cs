@@ -27,6 +27,8 @@ namespace NNEmu.Software
                 Nes = new BUS(cart,Program.GameWidth, Program.GameHeight);
                 //Reset stato
                 Nes.Reset();
+                //Init controller
+                Nes.Controller[0] = 0;
                 //Start emulazione
                 Program.EmulationRun = true;
             }
