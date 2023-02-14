@@ -1,7 +1,4 @@
-﻿using PixelEngine;
-using System.Threading.Tasks;
-
-namespace NNEmu.Hardware
+﻿namespace NNEmu.Hardware
 {
     //GPU 2C02
     public class GPU
@@ -145,13 +142,14 @@ namespace NNEmu.Hardware
         //Memoria addizionale della GPU chiamata OAM
         public GpuAttributeEntry[] MemoryOAM = new GpuAttributeEntry[64];
 
+        //PixelScreenData
+        private uint GameHeight;
+        private uint GameWidth;
+
         private byte[][] TblName;
         private byte[][] TblPattern;
         private byte[] TblPalette = new byte[32];
-        private Pixel[] PalScreen = new Pixel[0x40];
-        private Sprite SprScreen = new Sprite(256, 240);
-        private Sprite[] SprNameTable = { new Sprite(256, 240), new Sprite(256, 240) };
-        private Sprite[] SprPatternTable = { new Sprite(128, 128), new Sprite(128, 128) };
+        private int[] SprScreen;
         private short Scanline = 0;
         private short Cycle = 0;
         private byte tmpAdrdM;
@@ -183,12 +181,24 @@ namespace NNEmu.Hardware
         public volatile bool FrameComplete;
         public volatile bool Nmi;
 
-        public GPU(CARTRIDGE cart)
+        private readonly int[] PaletteData = {
+            0x7C7C7C, 0x0000FC, 0x0000BC, 0x4428BC, 0x940084, 0xA80020, 0xA81000, 0x881400,
+            0x503000, 0x007800, 0x006800, 0x005800, 0x004058, 0x000000, 0x000000, 0x000000,
+            0xBCBCBC, 0x0078F8, 0x0058F8, 0x6844FC, 0xD800CC, 0xE40058, 0xF83800, 0xE45C10,
+            0xAC7C00, 0x00B800, 0x00A800, 0x00A844, 0x008888, 0x000000, 0x000000, 0x000000,
+            0xF8F8F8, 0x3CBCFC, 0x6888FC, 0x9878F8, 0xF878F8, 0xF85898, 0xF87858, 0xFCA044,
+            0xF8B800, 0xB8F818, 0x58D854, 0x58F898, 0x00E8D8, 0x787878, 0x000000, 0x000000,
+            0xFCFCFC, 0xA4E4FC, 0xB8B8F8, 0xD8B8F8, 0xF8B8F8, 0xF8A4C0, 0xF0D0B0, 0xFCE0A8,
+            0xF8D878, 0xD8F878, 0xB8F8B8, 0xB8F8D8, 0x00FCFC, 0xF8D8F8, 0x000000, 0x000000
+        };
+
+        public GPU(CARTRIDGE cart, uint gameHeight, uint gameWidth)
         {
             Cartridge = cart;
             Nmi = false;
+            SprScreen = new int[gameHeight * gameWidth];
 
-            for(int i = 0; i<MemoryOAM.Length; i++)
+            for (int i = 0; i < MemoryOAM.Length; i++)
                 MemoryOAM[i] = new GpuAttributeEntry();
 
             for (int i = 0; i < SpriteScanline.Length; i++)
@@ -203,132 +213,24 @@ namespace NNEmu.Hardware
                 TblPattern[i] = new byte[4096];
             }
 
-            //PAL Inizialize
-
-            PalScreen[0x00] = new Pixel(84, 84, 84);
-            PalScreen[0x01] = new Pixel(0, 30, 116);
-            PalScreen[0x02] = new Pixel(8, 16, 144);
-            PalScreen[0x03] = new Pixel(48, 0, 136);
-            PalScreen[0x04] = new Pixel(68, 0, 100);
-            PalScreen[0x05] = new Pixel(92, 0, 48);
-            PalScreen[0x06] = new Pixel(84, 4, 0);
-            PalScreen[0x07] = new Pixel(60, 24, 0);
-            PalScreen[0x08] = new Pixel(32, 42, 0);
-            PalScreen[0x09] = new Pixel(8, 58, 0);
-            PalScreen[0x0A] = new Pixel(0, 64, 0);
-            PalScreen[0x0B] = new Pixel(0, 60, 0);
-            PalScreen[0x0C] = new Pixel(0, 50, 60);
-            PalScreen[0x0D] = new Pixel(0, 0, 0);
-            PalScreen[0x0E] = new Pixel(0, 0, 0);
-            PalScreen[0x0F] = new Pixel(0, 0, 0);
-
-            PalScreen[0x10] = new Pixel(152, 150, 152);
-            PalScreen[0x11] = new Pixel(8, 76, 196);
-            PalScreen[0x12] = new Pixel(48, 50, 236);
-            PalScreen[0x13] = new Pixel(92, 30, 228);
-            PalScreen[0x14] = new Pixel(136, 20, 176);
-            PalScreen[0x15] = new Pixel(160, 20, 100);
-            PalScreen[0x16] = new Pixel(152, 34, 32);
-            PalScreen[0x17] = new Pixel(120, 60, 0);
-            PalScreen[0x18] = new Pixel(84, 90, 0);
-            PalScreen[0x19] = new Pixel(40, 114, 0);
-            PalScreen[0x1A] = new Pixel(8, 124, 0);
-            PalScreen[0x1B] = new Pixel(0, 118, 40);
-            PalScreen[0x1C] = new Pixel(0, 102, 120);
-            PalScreen[0x1D] = new Pixel(0, 0, 0);
-            PalScreen[0x1E] = new Pixel(0, 0, 0);
-            PalScreen[0x1F] = new Pixel(0, 0, 0);
-
-            PalScreen[0x20] = new Pixel(236, 238, 236);
-            PalScreen[0x21] = new Pixel(76, 154, 236);
-            PalScreen[0x22] = new Pixel(120, 124, 236);
-            PalScreen[0x23] = new Pixel(176, 98, 236);
-            PalScreen[0x24] = new Pixel(228, 84, 236);
-            PalScreen[0x25] = new Pixel(236, 88, 180);
-            PalScreen[0x26] = new Pixel(236, 106, 100);
-            PalScreen[0x27] = new Pixel(212, 136, 32);
-            PalScreen[0x28] = new Pixel(160, 170, 0);
-            PalScreen[0x29] = new Pixel(116, 196, 0);
-            PalScreen[0x2A] = new Pixel(76, 208, 32);
-            PalScreen[0x2B] = new Pixel(56, 204, 108);
-            PalScreen[0x2C] = new Pixel(56, 180, 204);
-            PalScreen[0x2D] = new Pixel(60, 60, 60);
-            PalScreen[0x2E] = new Pixel(0, 0, 0);
-            PalScreen[0x2F] = new Pixel(0, 0, 0);
-
-            PalScreen[0x30] = new Pixel(236, 238, 236);
-            PalScreen[0x31] = new Pixel(168, 204, 236);
-            PalScreen[0x32] = new Pixel(188, 188, 236);
-            PalScreen[0x33] = new Pixel(212, 178, 236);
-            PalScreen[0x34] = new Pixel(236, 174, 236);
-            PalScreen[0x35] = new Pixel(236, 174, 212);
-            PalScreen[0x36] = new Pixel(236, 180, 176);
-            PalScreen[0x37] = new Pixel(228, 196, 144);
-            PalScreen[0x38] = new Pixel(204, 210, 120);
-            PalScreen[0x39] = new Pixel(180, 222, 120);
-            PalScreen[0x3A] = new Pixel(168, 226, 144);
-            PalScreen[0x3B] = new Pixel(152, 226, 180);
-            PalScreen[0x3C] = new Pixel(160, 214, 228);
-            PalScreen[0x3D] = new Pixel(160, 162, 160);
-            PalScreen[0x3E] = new Pixel(0, 0, 0);
-            PalScreen[0x3F] = new Pixel(0, 0, 0);
-
             GpuStatus = new GPUStatus();
             GpuMask = new GPUMask();
             GpuControl = new GPUControl();
             VramAddr = new LOOPYReg();
             TramAddr = new LOOPYReg();
+            GameHeight = gameHeight;
+            GameWidth = gameWidth;
 
         }
 
-        public Sprite GetScreen()
+        public int[] GetScreen()
         {
             return SprScreen;
         }
-
-        public Sprite GetNameTable(byte i)
+        
+        public int GetColourFromPaletteRam(byte palette, byte pixel)
         {
-            return SprNameTable[i];
-        }
-
-        public Sprite GetPatternTable(byte i, byte palette)
-        {
-            
-            for (ushort nTileY = 0; nTileY < 16; nTileY++)
-            {
-                for (ushort nTileX = 0; nTileX < 16; nTileX++)
-                {
-                    
-                    ushort nOffset = (ushort)(nTileY * 256 + nTileX * 16);
-
-                    for (ushort row = 0; row < 8; row++)
-                    {
-                        byte tile_lsb = PpuRead((ushort)(i * 0x1000 + nOffset + row + 0x0000));
-                        byte tile_msb = PpuRead((ushort)(i * 0x1000 + nOffset + row + 0x0008));
-
-                        for (ushort col = 0; col < 8; col++)
-                        {
-                            byte pixel = (byte)((tile_msb & 0x01) << 1 | (tile_lsb & 0x01));
-
-                            tile_lsb >>= 1; tile_msb >>= 1;
-
-                            SprPatternTable[i].SetPixel
-                            (
-                                nTileX * 8 + (7 - col),
-                                nTileY * 8 + row,
-                                GetColourFromPaletteRam(palette, pixel)
-                            );
-                        }
-                    }
-                }
-            }
-
-            return SprPatternTable[i];
-        }
-
-        public Pixel GetColourFromPaletteRam(byte palette, byte pixel)
-        {
-            return PalScreen[(byte)(PpuRead((ushort)(0x3F00 + (palette << 2) + pixel)) & 0x3F)];
+            return PaletteData[(byte)(PpuRead((ushort)(0x3F00 + (palette << 2) + pixel)) & 0x3F)];
         }
 
         public byte CpuRead(ushort addr, bool? rdonly = false)
@@ -961,7 +863,8 @@ namespace NNEmu.Hardware
                 }
             }
 
-            SprScreen.SetPixel(Cycle - 1, Scanline, GetColourFromPaletteRam(palette, pixel));
+            //Set pixel of image
+            SetPixel(Cycle - 1, Scanline, GetColourFromPaletteRam(palette, pixel));
 
             Cycle++;
 
@@ -1098,6 +1001,12 @@ namespace NNEmu.Hardware
             b = (byte)((b & 0xCC) >> 2 | (b & 0x33) << 2);
             b = (byte)((b & 0xAA) >> 1 | (b & 0x55) << 1);
             return b;
+        }
+
+        private void SetPixel(int x, int y, int p)
+        {
+            if (x >= 0 && x < GameWidth && y >= 0 && y < GameHeight)
+                SprScreen[y * GameWidth + x] = p;
         }
 
         #endregion

@@ -17,7 +17,7 @@
         private bool dmaFlag = true;
         private bool dmaTransfer = false;
 
-        public BUS(CARTRIDGE cart) 
+        public BUS(CARTRIDGE cart,uint gameHeight, uint gameWidth) 
         {
             //Azzero la ram
             for (uint i=0; i< CpuRam.Length; i++)
@@ -25,7 +25,7 @@
 
             Cpu = new CPU(this);
             Cart = cart;
-            Gpu = new GPU(cart);
+            Gpu = new GPU(cart,gameHeight,gameWidth);
 
         }
 

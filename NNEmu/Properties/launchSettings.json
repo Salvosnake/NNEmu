@@ -2,7 +2,7 @@
   "profiles": {
     "NNEmu": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\salvosnake\\Documents\\GitHub\\NES-Emulator\\Mario3.nes\r\n"
+      "commandLineArgs": "C:\\Users\\salvosnake\\Documents\\GitHub\\NES-Emulator\\Mario.nes\r\n"
     }
   }
 }

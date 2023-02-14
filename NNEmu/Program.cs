@@ -1,5 +1,9 @@
 ﻿using NNEmu.Hardware;
 using NNEmu.Software;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace NNEmu
 {
@@ -9,6 +13,8 @@ namespace NNEmu
         public static volatile BUS? nes;
         public static volatile bool EmulationRun = true;
         private static bool Debug = false;
+        private static uint GameWidth = 256;
+        private static uint GameHeight = 240;
         public static void Main(string[] args)
         {
 
@@ -24,27 +30,25 @@ namespace NNEmu
             if (args.Length > 1 && args[1] != null && args[1].ToUpper().Equals("DEBUG"))
                 Debug = true;
             
-            nes = new BUS(cart);
-            if (Debug)
+            nes = new BUS(cart,GameHeight,GameWidth);
+
+            if (!Debug)
             {
-                new Thread(delegate ()
-                {
-                    NNEmuDebugger debugger = new NNEmuDebugger(nes);
-                    debugger.Construct(780, 480, 2, 2);
-                    debugger.Start();
-                })
-                { }.Start();
+                GameWindowSettings settings = new GameWindowSettings();
+                settings.RenderFrequency = 60;
+                settings.UpdateFrequency = 60;
+                NativeWindowSettings nativeWindow = new NativeWindowSettings();
+                nativeWindow.API = ContextAPI.OpenGL;
+                nativeWindow.Size = new Vector2i(512, 480);
+                nativeWindow.Title = "NNEmu";
+                nativeWindow.Profile = ContextProfile.Compatability;
+
+                NNEmuRender nnemu = new NNEmuRender(nes, settings, nativeWindow);
+                nnemu.VSync = VSyncMode.On;
+                nnemu.Run();
             }
-            else
-            {
-                new Thread(delegate ()
-                {
-                    Software.NNEmu nnemu = new Software.NNEmu(nes);
-                    nnemu.Construct(256, 240, 2, 2);
-                    nnemu.Start();
-                })
-                { }.Start();
-            }
+            
+
         }
     }
 }
