@@ -9,12 +9,12 @@ namespace NNEmu.Software
 {
     public class NNEmuRender : GameWindow
     {
-        private volatile BUS? nes;
-        private volatile int[] displayBuffer;
+        private volatile BUS? Nes;
+        private volatile int[] DisplayBuffer;
         public NNEmuRender(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             MakeCurrent();
-            displayBuffer = new int[Program.GameWidth * Program.GameHeight];
+            DisplayBuffer = new int[Program.GameWidth * Program.GameHeight];
             ClearBufferDisplay();
         }
 
@@ -24,8 +24,10 @@ namespace NNEmu.Software
             string file = files[0];
             if(file.EndsWith(".nes")) {
                 CARTRIDGE cart = new CARTRIDGE(file);
-                nes = new BUS(cart,Program.GameWidth, Program.GameHeight);
-                nes.Reset();
+                Nes = new BUS(cart,Program.GameWidth, Program.GameHeight);
+                //Reset stato
+                Nes.Reset();
+                //Start emulazione
                 Program.EmulationRun = true;
             }
         }
@@ -43,11 +45,9 @@ namespace NNEmu.Software
             GL.Enable(EnableCap.Texture2D);
             GL.ClearColor(1, 1, 1, 1);
         }
-
+        //Render immagine
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-
-            //Console.WriteLine(this.RenderFrequency);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             int id = GL.GenTexture();
@@ -58,7 +58,7 @@ namespace NNEmu.Software
                 Program.GameWidth, Program.GameHeight, 0,
                 PixelFormat.Bgra,
                 PixelType.UnsignedByte,
-                displayBuffer);
+                DisplayBuffer);
 
             
             GL.TexParameter(TextureTarget.Texture2D,
@@ -80,15 +80,16 @@ namespace NNEmu.Software
             //Clear buffer
             ClearBufferDisplay();
         }
+        //Prendo i dati per l'immagine
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
 
-            if (Program.EmulationRun && nes != null)
+            if (Program.EmulationRun && Nes != null)
             {
-                do { nes.Clock(); } while (!nes.Gpu.FrameComplete);
-                nes.Gpu.FrameComplete = false;
-                displayBuffer = nes.Gpu.GetScreen();
+                do { Nes.Clock(); } while (!Nes.Gpu.FrameComplete);
+                Nes.Gpu.FrameComplete = false;
+                DisplayBuffer = Nes.Gpu.GetScreen();
             }
             else//Default screen
                 ClearBufferDisplay();
@@ -97,37 +98,38 @@ namespace NNEmu.Software
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            if (Program.EmulationRun && nes != null)
+            if (Program.EmulationRun && Nes != null)
             {
-                nes.Controller[0] = 0;
+                //Init controller
+                Nes.Controller[0] = 0;
                 switch (e.Key)
                 {
                     case Keys.R:
-                        nes.Reset();
+                        Nes.Reset();
                         break;
                     case Keys.Right:
-                        nes.Controller[0] |= 0x01;
+                        Nes.Controller[0] |= 0x01;
                         break;
                     case Keys.Left:
-                        nes.Controller[0] |= 0x02;
+                        Nes.Controller[0] |= 0x02;
                         break;
                     case Keys.Down:
-                        nes.Controller[0] |= 0x04;
+                        Nes.Controller[0] |= 0x04;
                         break;
                     case Keys.Up:
-                        nes.Controller[0] |= 0x08;
+                        Nes.Controller[0] |= 0x08;
                         break;
                     case Keys.S://Start
-                        nes.Controller[0] |= 0x10;
+                        Nes.Controller[0] |= 0x10;
                         break;
                     case Keys.A://Select
-                        nes.Controller[0] |= 0x20;
+                        Nes.Controller[0] |= 0x20;
                         break;
                     case Keys.Z://B
-                        nes.Controller[0] |= 0x40;
+                        Nes.Controller[0] |= 0x40;
                         break;
                     case Keys.X://A
-                        nes.Controller[0] |= 0x80;
+                        Nes.Controller[0] |= 0x80;
                         break;
                     default:
                         break;
@@ -137,34 +139,35 @@ namespace NNEmu.Software
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
-            if (Program.EmulationRun && nes != null)
+            if (Program.EmulationRun && Nes != null)
             {
-                nes.Controller[0] = 0;
+                //Init controller
+                Nes.Controller[0] = 0;
                 switch (e.Key)
                 {
                     case Keys.Right:
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.Left:
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.Down:
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.Up:
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.S://Start
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.A://Select
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.Z://B
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     case Keys.X://A
-                        nes.Controller[0] |= 0x00;
+                        Nes.Controller[0] |= 0x00;
                         break;
                     default:
                         break;
@@ -172,10 +175,11 @@ namespace NNEmu.Software
             }
         }
 
+        //Resetta il buffer dello schermo
         private void ClearBufferDisplay()
         {
-            for (int i = 0; i < displayBuffer.Length; i++)
-                displayBuffer[i] = 0;
+            for (int i = 0; i < DisplayBuffer.Length; i++)
+                DisplayBuffer[i] = 0;
         }
         
     }

@@ -656,8 +656,6 @@
 
                 if (Cycle == 340)
                 {
-                    // Now we're at the very end of the scanline, I'm going to prepare the 
-                    // sprite shifters with the 8 or less selected sprites.
 
                     for (byte i = 0; i < SpriteCount; i++)
                     {

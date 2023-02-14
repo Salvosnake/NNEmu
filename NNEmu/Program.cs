@@ -14,22 +14,24 @@ namespace NNEmu
         public static int GameHeight = 240;
         public static void Main()
         {
-                GameWindowSettings settings = new GameWindowSettings();
-                settings.RenderFrequency = 60;
-                settings.UpdateFrequency = 60;
-                NativeWindowSettings nativeWindow = new NativeWindowSettings();
-                nativeWindow.API = ContextAPI.OpenGL;
-                //Set window size, it can be different from game sizes
-                //the window will adapt to game size increasing pixel size
-                nativeWindow.Size = new Vector2i(512, 480);
-                nativeWindow.Title = "NNEmu";
-                nativeWindow.Profile = ContextProfile.Compatability;
-
-                NNEmuRender nnemu = new NNEmuRender(settings, nativeWindow);
-                nnemu.VSync = VSyncMode.On;
-                nnemu.Run();
+            GameWindowSettings settings = new GameWindowSettings();
             
+            //0 a entrambi consente di adattarsi al hardware
+            settings.RenderFrequency = 0;
+            settings.UpdateFrequency = 0;
 
+            NativeWindowSettings nativeWindow = new NativeWindowSettings();
+            nativeWindow.API = ContextAPI.OpenGL;
+            //Setto le dimensioni della finestra, che sono diverse da quelle di gioco
+            //viene aumentata in automatico la dimensine dei pixel e si auto adatta
+            nativeWindow.Size = new Vector2i(512, 480);
+            nativeWindow.Title = "NNEmu";
+            nativeWindow.Profile = ContextProfile.Compatability;
+            nativeWindow.WindowBorder = WindowBorder.Fixed;
+
+            NNEmuRender nnemu = new NNEmuRender(settings, nativeWindow);
+            nnemu.VSync = VSyncMode.On;
+            nnemu.Run();
         }
     }
 }
