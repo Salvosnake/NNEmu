@@ -3,15 +3,13 @@ NES Emulator written in C# with .NET 7.
 The emulator is for didactic proposal, more improvement can be apply on it, but i prefer code clarity, it work on Linux, Windows and maybe on Mac.
 
 
-I use OpenTK for rendering.
+I use OpenTK with OpenGL for rendering.
 Thank OLC for ispiration!
 
 
 USAGE:
 1. Compile it with Visual Studio 2022 or Visual Studio Code.
-2. Run exe file with cmd with and add nes rom file path on argument line.
-3. If you add "debug" after rom path you start emulator in debug mode.
-
+2. Run exe file, after start you must drag the nes file in windows and game start.
 
 
 Todo:
