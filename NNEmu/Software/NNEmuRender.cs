@@ -9,19 +9,31 @@ namespace NNEmu.Software
 {
     public class NNEmuRender : GameWindow
     {
-        private readonly BUS nes;
+        private volatile BUS? nes;
         private volatile int[] displayBuffer;
-        public NNEmuRender(BUS nes, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+        public NNEmuRender(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             MakeCurrent();
-            this.nes = nes;
-            displayBuffer = nes.Gpu.GetScreen();
+            displayBuffer = new int[Program.GameWidth * Program.GameHeight];
+            ClearBufferDisplay();
+        }
+
+        private void Window_FileDrop(FileDropEventArgs fileDrop)
+        {
+            string[] files = fileDrop.FileNames;
+            string file = files[0];
+            if(file.EndsWith(".nes")) {
+                CARTRIDGE cart = new CARTRIDGE(file);
+                nes = new BUS(cart,Program.GameWidth, Program.GameHeight);
+                nes.Reset();
+                Program.EmulationRun = true;
+            }
         }
 
         protected override void OnLoad() 
         {
-            // Reset Nes state
-            nes.Reset();
+            //File drop init
+            FileDrop += Window_FileDrop;
 
             //Init GameWindow
             GL.Enable(EnableCap.Blend);
@@ -43,7 +55,7 @@ namespace NNEmu.Software
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
                 PixelInternalFormat.Rgb,
-                256, 240, 0,
+                Program.GameWidth, Program.GameHeight, 0,
                 PixelFormat.Bgra,
                 PixelType.UnsignedByte,
                 displayBuffer);
@@ -72,85 +84,91 @@ namespace NNEmu.Software
         {
             base.OnUpdateFrame(args);
 
-            if (Program.EmulationRun)
+            if (Program.EmulationRun && nes != null)
             {
                 do { nes.Clock(); } while (!nes.Gpu.FrameComplete);
                 nes.Gpu.FrameComplete = false;
+                displayBuffer = nes.Gpu.GetScreen();
             }
-            displayBuffer = nes.Gpu.GetScreen();
+            else//Default screen
+                ClearBufferDisplay();
+            
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            nes.Controller[0] = 0;
-            switch (e.Key)
+            if (Program.EmulationRun && nes != null)
             {
-                case Keys.Space:
-                    Program.EmulationRun = !Program.EmulationRun;
-                    break;
-                case Keys.R:
-                    nes.Reset();
-                    break;
-                case Keys.Right:
-                    nes.Controller[0] |= 0x01;
-                    break;
-                case Keys.Left:
-                    nes.Controller[0] |= 0x02;
-                    break;
-                case Keys.Down:
-                    nes.Controller[0] |= 0x04;
-                    break;
-                case Keys.Up:
-                    nes.Controller[0] |= 0x08;
-                    break;
-                case Keys.S://Start
-                    nes.Controller[0] |= 0x10;
-                    break;
-                case Keys.A://Select
-                    nes.Controller[0] |= 0x20;
-                    break;
-                case Keys.Z://B
-                    nes.Controller[0] |= 0x40;
-                    break;
-                case Keys.X://A
-                    nes.Controller[0] |= 0x80;
-                    break;
-                default:
-                    break;
+                nes.Controller[0] = 0;
+                switch (e.Key)
+                {
+                    case Keys.R:
+                        nes.Reset();
+                        break;
+                    case Keys.Right:
+                        nes.Controller[0] |= 0x01;
+                        break;
+                    case Keys.Left:
+                        nes.Controller[0] |= 0x02;
+                        break;
+                    case Keys.Down:
+                        nes.Controller[0] |= 0x04;
+                        break;
+                    case Keys.Up:
+                        nes.Controller[0] |= 0x08;
+                        break;
+                    case Keys.S://Start
+                        nes.Controller[0] |= 0x10;
+                        break;
+                    case Keys.A://Select
+                        nes.Controller[0] |= 0x20;
+                        break;
+                    case Keys.Z://B
+                        nes.Controller[0] |= 0x40;
+                        break;
+                    case Keys.X://A
+                        nes.Controller[0] |= 0x80;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
-            nes.Controller[0] = 0;
-            switch (e.Key)
+            if (Program.EmulationRun && nes != null)
             {
-                case Keys.Right:
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.Left:
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.Down:
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.Up:
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.S://Start
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.A://Select
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.Z://B
-                    nes.Controller[0] |= 0x00;
-                    break;
-                case Keys.X://A
-                    nes.Controller[0] |= 0x00;
-                    break;
-                default:
-                    break;
+                nes.Controller[0] = 0;
+                switch (e.Key)
+                {
+                    case Keys.Right:
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.Left:
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.Down:
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.Up:
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.S://Start
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.A://Select
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.Z://B
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    case Keys.X://A
+                        nes.Controller[0] |= 0x00;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 

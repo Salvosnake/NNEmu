@@ -143,8 +143,8 @@
         public GpuAttributeEntry[] MemoryOAM = new GpuAttributeEntry[64];
 
         //PixelScreenData
-        private uint GameHeight;
-        private uint GameWidth;
+        private int GameHeight;
+        private int GameWidth;
 
         private byte[][] TblName;
         private byte[][] TblPattern;
@@ -192,7 +192,7 @@
             0xF8D878, 0xD8F878, 0xB8F8B8, 0xB8F8D8, 0x00FCFC, 0xF8D8F8, 0x000000, 0x000000
         };
 
-        public GPU(CARTRIDGE cart, uint gameHeight, uint gameWidth)
+        public GPU(CARTRIDGE cart, int gameHeight, int gameWidth)
         {
             Cartridge = cart;
             Nmi = false;

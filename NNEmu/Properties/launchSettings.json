@@ -1,8 +1,7 @@
 {
   "profiles": {
     "NNEmu": {
-      "commandName": "Project",
-      "commandLineArgs": "/home/salvosnake/Roms/Mario.nes"
+      "commandName": "Project"
     }
   }
 }
