@@ -1,6 +1,6 @@
 # NNEmu(.NET NES Emulator)
 NES Emulator written in C# with .NET 7.
-The emulator is for didactic proposal, more improvement can be apply on it, but i prefer code clarity, it work also on Linux, and maybe on Mac.
+The emulator is for didactic proposal, more improvement can be apply on it, but i prefer code clarity, it work on Linux, Windows and maybe on Mac.
 
 
 I use OpenTK for rendering.
