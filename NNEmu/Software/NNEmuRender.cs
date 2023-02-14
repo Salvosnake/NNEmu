@@ -80,6 +80,7 @@ namespace NNEmu.Software
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
+            nes.Controller[0] = 0;
             switch (e.Key)
             {
                 case Keys.Space:
@@ -119,6 +120,7 @@ namespace NNEmu.Software
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
+            nes.Controller[0] = 0;
             switch (e.Key)
             {
                 case Keys.Right:
