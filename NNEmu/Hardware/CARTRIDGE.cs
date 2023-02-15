@@ -1,6 +1,4 @@
-﻿using NNEmu.Hardware.Mappers;
-using System;
-
+﻿using NNEmu.Mappers;
 
 namespace NNEmu.Hardware
 {

@@ -1,7 +1,6 @@
-﻿using System;
-using static NNEmu.Hardware.CARTRIDGE;
+﻿using static NNEmu.Hardware.CARTRIDGE;
 
-namespace NNEmu.Hardware.Mappers
+namespace NNEmu.Mappers
 {
     public class MAPPER_004 : MAPPER
     {

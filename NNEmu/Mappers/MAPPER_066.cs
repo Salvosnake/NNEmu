@@ -1,4 +1,4 @@
-﻿namespace NNEmu.Hardware.Mappers
+﻿namespace NNEmu.Mappers
 {
     public class MAPPER_066 : MAPPER
     {
