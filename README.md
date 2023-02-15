@@ -13,6 +13,11 @@ USAGE:
 1. Compile it with Visual Studio 2022 or Visual Studio Code.
 2. Run exe file, after start you must drag the nes file in windows and game start.
 
+CONTROLLER:
+S -> START
+A -> SELECT
+Z -> B
+X -> A
 
 ToDo:
 1. Add some other mapper.
