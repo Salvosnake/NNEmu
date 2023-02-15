@@ -14,6 +14,8 @@ USAGE:
 2. Run exe file, after start you must drag the nes file in windows and game start.
 
 CONTROLLER:
+
+
 S -> START
 A -> SELECT
 Z -> B
