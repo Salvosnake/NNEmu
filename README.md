@@ -17,9 +17,17 @@ CONTROLLER:
 
 
 S -> START
+
+
 A -> SELECT
+
+
 Z -> B
+
+
 X -> A
+
+
 
 ToDo:
 1. Add some other mapper.
