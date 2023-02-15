@@ -186,7 +186,7 @@ namespace NNEmu.Software
         //Carica la schermata di default
         private void LoadDefaultScreen()
         {
-            Bitmap bitmap = new Bitmap(@"Utils\NNEmu.dat");
+            Bitmap bitmap = new Bitmap(@"Utils" + Path.DirectorySeparatorChar + "NNEmu.dat");
             DefaultScreenBuffer =  GetRGB(bitmap,0, 0, Program.GameWidth, Program.GameHeight, 0, Program.GameWidth);
         }
         //Trasforma un immagine in un array di int
