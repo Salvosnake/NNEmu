@@ -14,7 +14,7 @@ USAGE:
 2. Run exe file, after start you must drag the nes file in windows and game start.
 
 
-Todo:
+ToDo:
 1. Add some other mapper.
 2. Add audio.
 3. Add snapshot for status.
