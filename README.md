@@ -40,4 +40,3 @@ Space -> Start/Pause Emulation
 TODO:
 1. Add some other mapper.
 2. Add audio.
-3. Add snapshot for status.
