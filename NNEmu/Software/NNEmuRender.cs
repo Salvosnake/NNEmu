@@ -17,6 +17,7 @@ namespace NNEmu.Software
         public volatile BUS? Nes;
         public volatile int[] DisplayBuffer;
         public volatile int[] DefaultScreenBuffer;
+        public volatile bool FrameComplete;
         public string RomFilePath;
         public NNEmuRender(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
@@ -97,8 +98,10 @@ namespace NNEmu.Software
 
             if (Program.EmulationRun && Nes != null)
             {
+                FrameComplete = false;
                 do { Nes.Clock(); } while (!Nes.Gpu.FrameComplete);
                 Nes.Gpu.FrameComplete = false;
+                FrameComplete = true;
                 DisplayBuffer = Nes.Gpu.GetScreen();
             }
             else//Default screen
@@ -108,7 +111,7 @@ namespace NNEmu.Software
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            if (Program.EmulationRun && Nes != null)
+            if (Nes != null)
             {
                 switch (e.Key)
                 {
@@ -148,7 +151,7 @@ namespace NNEmu.Software
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             //Rimuovo i valori dei tasti rilasciati
-            if (Program.EmulationRun && Nes != null)
+            if (Nes != null)
             {
                 switch (e.Key)
                 {
@@ -205,7 +208,7 @@ namespace NNEmu.Software
 
                 //Get data from file snap
                 string tmpData = File.ReadAllText(SnapFileName);
-                //Rstore data in BUS
+                //Restore data in BUS
                 Nes = JsonConvert.DeserializeObject<BUS>(tmpData);
                 CARTRIDGE cart = new CARTRIDGE(RomFilePath);
 
@@ -233,6 +236,8 @@ namespace NNEmu.Software
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 };
 
+                //Wait until complete current frame
+                while(!FrameComplete);
                 //Stop emulation for make snapshot
                 if (Program.EmulationRun)
                     EmulationStartOrPause();
