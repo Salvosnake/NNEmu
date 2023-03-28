@@ -47,16 +47,16 @@ namespace NNEmu.Hardware
         public byte Status = 0;      // Status Register
 
         // Variabili temporanee
-        private byte Fetched = 0;
-        private ushort Temp = 0;
-        private ushort Addr_abs = 0;
-        private ushort Addr_rel = 0;
-        private byte Opcode = 0;
-        private byte Cycles = 0;
-        private ulong CpuClockCount = 0;
+        public byte Fetched = 0;
+        public ushort Temp = 0;
+        public ushort Addr_abs = 0;
+        public ushort Addr_rel = 0;
+        public byte Opcode = 0;
+        public byte Cycles = 0;
+        public ulong CpuClockCount = 0;
 
         // Riferimento al BUS
-        private BUS Bus;
+        public BUS Bus;
 
         //OP Table
         INSTRUCTION[] Lookup;
@@ -197,7 +197,7 @@ namespace NNEmu.Hardware
 
         }
 
-        private string HexConvert(uint n, byte d)
+        public string HexConvert(uint n, byte d)
         {
             char[] s = new char[d];
             for (int i = d - 1; i >= 0; i--, n >>= 4)

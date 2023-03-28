@@ -7,18 +7,18 @@ namespace NNEmu.Mappers
         public byte NPRGBanks;
         public byte NCHRBanks;
 
-        private byte NTargetRegister = 0x00;
-        private bool BPRGBankMode = false;
-        private bool BCHRInversion = false;
-        private MIRROR MirrorMode = MIRROR.HORIZONTAL;
-        private uint[] PRegister = new uint [8];
-        private uint[] PCHRBank = new uint[8];
-        private uint[] PPRGBank = new uint[4];
-        private bool BIRQActive = false;
-        private bool BIRQEnable = false;
-        private ushort BIRQCounter = 0;
-        private ushort BIRQReload = 0;
-        private byte[] VRAMStatic = new byte[32 * 1024];
+        public byte NTargetRegister = 0x00;
+        public bool BPRGBankMode = false;
+        public bool BCHRInversion = false;
+        public MIRROR MirrorMode = MIRROR.HORIZONTAL;
+        public uint[] PRegister = new uint [8];
+        public uint[] PCHRBank = new uint[8];
+        public uint[] PPRGBank = new uint[4];
+        public bool BIRQActive = false;
+        public bool BIRQEnable = false;
+        public ushort BIRQCounter = 0;
+        public ushort BIRQReload = 0;
+        public byte[] VRAMStatic = new byte[32 * 1024];
 
         public MAPPER_004(byte NPRGBanks, byte NCHRBanks) 
         {

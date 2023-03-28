@@ -4,7 +4,6 @@ namespace NNEmu.Hardware
 {
     public class CARTRIDGE
     {
-
         public enum MIRROR
         {
             HORIZONTAL,
@@ -15,19 +14,19 @@ namespace NNEmu.Hardware
 
         public MIRROR Mirror;
 
-        private bool BImageValid = false;
-        private byte NMapperID = 0;
-        private byte NPRGBanks = 0;
-        private byte NCHRBanks = 0;
-        private byte NFileType = 0;
+        public bool BImageValid = false;
+        public byte NMapperID = 0;
+        public byte NPRGBanks = 0;
+        public byte NCHRBanks = 0;
+        public byte NFileType = 0;
 
-        private byte[] VPRGMemory;
-        private byte[] VCHRMemory;
+        public byte[] VPRGMemory;
+        public byte[] VCHRMemory;
 
         private volatile MAPPER PMapper;
 
 
-        private byte[] header;
+        public byte[] header;
 
 
         public CARTRIDGE(string SFileName)
@@ -109,7 +108,7 @@ namespace NNEmu.Hardware
 
         }
 
-        private void ReadFully(ref FileStream stream, ref byte[] buffer)
+        public void ReadFully(ref FileStream stream, ref byte[] buffer)
         {
             int offset = 0;
             int readBytes;

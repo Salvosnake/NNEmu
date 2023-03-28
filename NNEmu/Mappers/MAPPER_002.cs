@@ -2,10 +2,10 @@
 {
     public class MAPPER_002 : MAPPER
     {
-        private byte NPRGBanks;
-        private byte NCHRBanks;
-        private byte NPRGBankselectLo = 0;
-        private byte NPRGBankselectHi = 0;
+        public byte NPRGBanks;
+        public byte NCHRBanks;
+        public byte NPRGBankselectLo = 0;
+        public byte NPRGBankselectHi = 0;
 
         public MAPPER_002(byte NPRGBanks, byte NCHRBanks) 
         {

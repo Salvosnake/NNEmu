@@ -4,17 +4,17 @@ namespace NNEmu.Mappers
 {
     public class MAPPER_001 : MAPPER
     {
-        private byte NPRGBanks;
-        private byte NCHRBanks;
-        private byte NCHRBankSelect4Lo = 0;
-        private byte NCHRBankSelect4Hi = 0;
-        private byte NCHRBankSelect8 = 0;
-        private byte NPRGBankselect16Lo = 0;
-        private byte NPRGBankselect16Hi = 0;
-        private byte NPRGBankselect32 = 0;
-        private byte NLoadRegister = 0;
-        private byte NLoadRegisterCount = 0;
-        private byte NControlRegister = 0;
+        public byte NPRGBanks;
+        public byte NCHRBanks;
+        public byte NCHRBankSelect4Lo = 0;
+        public byte NCHRBankSelect4Hi = 0;
+        public byte NCHRBankSelect8 = 0;
+        public byte NPRGBankselect16Lo = 0;
+        public byte NPRGBankselect16Hi = 0;
+        public byte NPRGBankselect32 = 0;
+        public byte NLoadRegister = 0;
+        public byte NLoadRegisterCount = 0;
+        public byte NControlRegister = 0;
 
 
         MIRROR MirrorMode = MIRROR.HORIZONTAL;

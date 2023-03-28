@@ -7,14 +7,17 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace NNEmu.Software
 {
     public class NNEmuRender : GameWindow
     {
-        private volatile BUS? Nes;
-        private volatile int[] DisplayBuffer;
-        private volatile int[] DefaultScreenBuffer;
+        public static string SnapFileName = "NNEmuSnap.dat";
+        public volatile BUS? Nes;
+        public volatile int[] DisplayBuffer;
+        public volatile int[] DefaultScreenBuffer;
+        public string RomFilePath;
         public NNEmuRender(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             MakeCurrent();
@@ -22,14 +25,16 @@ namespace NNEmu.Software
             DefaultScreenBuffer = new int[Program.GameWidth * Program.GameHeight];
             ClearBufferDisplay();
             LoadDefaultScreen();
+            RomFilePath = string.Empty;
         }
 
-        private void Window_FileDrop(FileDropEventArgs fileDrop)
+        public void Window_FileDrop(FileDropEventArgs fileDrop)
         {
             string[] files = fileDrop.FileNames;
             string file = files[0];
             if(file.EndsWith(".nes")) {
                 CARTRIDGE cart = new CARTRIDGE(file);
+                RomFilePath = file;
                 Nes = new BUS(cart,Program.GameWidth, Program.GameHeight);
                 //Reset stato
                 Nes.Reset();
@@ -171,20 +176,89 @@ namespace NNEmu.Software
                     case Keys.X://A
                         Nes.Controller[0] &= unchecked((byte)~0x80);
                         break;
+                    case Keys.F1://Make snapshot of emulator
+                        MakeSnapShot();
+                        break;
+                    case Keys.F2://Restore snapshot of emulator
+                        RestoreSnapShot();
+                        break;
+                    case Keys.Space://Start/Pause emulation
+                        EmulationStartOrPause();
+                        break;
                     default:
                         break;
                 }
             }
         }
 
+        public void RestoreSnapShot()
+        {
+            if (!string.IsNullOrEmpty(RomFilePath))
+            {
+                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+                //Stop emulation for restore snapshot
+                if (Program.EmulationRun)
+                    EmulationStartOrPause();
+
+                //Get data from file snap
+                string tmpData = File.ReadAllText(SnapFileName);
+                //Rstore data in BUS
+                Nes = JsonConvert.DeserializeObject<BUS>(tmpData);
+                CARTRIDGE cart = new CARTRIDGE(RomFilePath);
+
+                if (Nes != null)
+                {
+                    Nes.Cart = cart;
+                    if(Nes.Gpu != null)
+                        Nes.Gpu.Cartridge = cart;
+
+                    if (Nes.Cpu != null)
+                        Nes.Cpu.Bus = Nes;
+                }
+
+                //Resume emulation
+                EmulationStartOrPause();
+            }
+        }
+
+        public void MakeSnapShot()
+        {
+            if (!string.IsNullOrEmpty(RomFilePath))
+            {
+                JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+
+                //Stop emulation for make snapshot
+                if (Program.EmulationRun)
+                    EmulationStartOrPause();
+
+                //Create snapshot of emulation
+                string tmpData = JsonConvert.SerializeObject(Nes);
+                //Write on file
+                File.WriteAllText(SnapFileName, tmpData);
+                //Resume emularion
+                EmulationStartOrPause();
+            }
+        }
+
+        public void EmulationStartOrPause()
+        {
+            Program.EmulationRun = !Program.EmulationRun;
+        }
+
         //Resetta il buffer dello schermo
-        private void ClearBufferDisplay()
+        public void ClearBufferDisplay()
         {
             for (int i = 0; i < DisplayBuffer.Length; i++)
                 DisplayBuffer[i] = 0;
         }
         //Carica la schermata di default
-        private void LoadDefaultScreen()
+        public void LoadDefaultScreen()
         {
             Bitmap bitmap = new Bitmap(@"Utils" + Path.DirectorySeparatorChar + "NNEmu.dat");
             DefaultScreenBuffer =  GetRGB(bitmap, 0, 0, Program.GameWidth, Program.GameHeight, 0, Program.GameWidth);

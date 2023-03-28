@@ -1,9 +1,11 @@
-﻿namespace NNEmu.Hardware
+﻿using Newtonsoft.Json;
+
+namespace NNEmu.Hardware
 {
     //GPU 2C02
     public class GPU
     {
-        private class GPUStatus
+        public class GPUStatus
         {
             //I primi 5 bit non servono
             public byte Unused;
@@ -31,7 +33,7 @@
             }
 
         }
-        private class GPUMask
+        public class GPUMask
         {
             //Gli ultimi 3 bit non servono.
             public bool Grayscale;
@@ -54,7 +56,7 @@
 
         }
 
-        private class GPUControl
+        public class GPUControl
         {
             public byte NametableX;
             public byte NametableY;
@@ -143,45 +145,48 @@
         public GpuAttributeEntry[] MemoryOAM = new GpuAttributeEntry[64];
 
         //PixelScreenData
-        private int GameHeight;
-        private int GameWidth;
+        public int GameHeight;
+        public int GameWidth;
 
-        private byte[][] TblName;
-        private byte[][] TblPattern;
-        private byte[] TblPalette = new byte[32];
-        private int[] SprScreen;
-        private short Scanline = 0;
-        private short Cycle = 0;
-        private byte tmpAdrdM;
-        private byte FineX = 0;
-        private byte AddressLatch = 0;
-        private byte GpuDataBuffer = 0;
-        private byte BgNextTileId = 0;
-        private byte BgNextTileAttrib = 0;
-        private byte BgNextTileLsb = 0;
-        private byte BgNextTileMsb = 0;
-        private ushort BgShifterPatternLo = 0;
-        private ushort BgShifterPatternHi = 0;
-        private ushort BgShifterAttribLo = 0;
-        private ushort BgShifterAttribHi = 0;
-        private byte MemoryOAMAddr = 0;
-        private bool OddFrame = false;
-        private GpuAttributeEntry[] SpriteScanline = new GpuAttributeEntry[8];
-        private byte SpriteCount;
-        private byte[] SpriteShifterPatternLo = new byte[8];
-        private byte[] SpriteShifterPatternHi = new byte[8];
-        private bool BSpriteZeroHitPossible = false;
-        private bool BSpriteZeroBeingRendered = false;
-        private GPUStatus GpuStatus;
-        private GPUMask GpuMask;
-        private GPUControl GpuControl;
-        private LOOPYReg VramAddr;
-        private LOOPYReg TramAddr;
+        public byte[][] TblName;
+        public byte[][] TblPattern;
+        public byte[] TblPalette = new byte[32];
+        public int[] SprScreen;
+        public short Scanline = 0;
+        public short Cycle = 0;
+        public byte tmpAdrdM;
+        public byte FineX = 0;
+        public byte AddressLatch = 0;
+        public byte GpuDataBuffer = 0;
+        public byte BgNextTileId = 0;
+        public byte BgNextTileAttrib = 0;
+        public byte BgNextTileLsb = 0;
+        public byte BgNextTileMsb = 0;
+        public ushort BgShifterPatternLo = 0;
+        public ushort BgShifterPatternHi = 0;
+        public ushort BgShifterAttribLo = 0;
+        public ushort BgShifterAttribHi = 0;
+        public byte MemoryOAMAddr = 0;
+        public bool OddFrame = false;
+        public GpuAttributeEntry[] SpriteScanline = new GpuAttributeEntry[8];
+        public byte SpriteCount;
+        public byte[] SpriteShifterPatternLo = new byte[8];
+        public byte[] SpriteShifterPatternHi = new byte[8];
+        public bool BSpriteZeroHitPossible = false;
+        public bool BSpriteZeroBeingRendered = false;
+        public GPUStatus GpuStatus;
+        public GPUMask GpuMask;
+        public GPUControl GpuControl;
+        public LOOPYReg VramAddr;
+        public LOOPYReg TramAddr;
+
+        [JsonIgnore]
         public CARTRIDGE Cartridge;
+
         public volatile bool FrameComplete;
         public volatile bool Nmi;
 
-        private readonly int[] PaletteData = {
+        public readonly int[] PaletteData = {
             0x7C7C7C, 0x0000FC, 0x0000BC, 0x4428BC, 0x940084, 0xA80020, 0xA81000, 0x881400,
             0x503000, 0x007800, 0x006800, 0x005800, 0x004058, 0x000000, 0x000000, 0x000000,
             0xBCBCBC, 0x0078F8, 0x0058F8, 0x6844FC, 0xD800CC, 0xE40058, 0xF83800, 0xE45C10,
@@ -886,9 +891,9 @@
             }
         }
 
-        #region private method
+        #region public method
 
-        private void IncrementScrollX()
+        public void IncrementScrollX()
         {
 
             if (GpuMask.RenderBackground || GpuMask.RenderSprites)
@@ -907,7 +912,7 @@
 
         }
 
-        private void IncrementScrollY()
+        public void IncrementScrollY()
         {
             if (GpuMask.RenderBackground || GpuMask.RenderSprites)
             {
@@ -935,7 +940,7 @@
             }
         }
 
-        private void TransferAddressX()
+        public void TransferAddressX()
         {
             if (GpuMask.RenderBackground || GpuMask.RenderSprites)
             {
@@ -944,7 +949,7 @@
             }
         }
 
-        private void TransferAddressY()
+        public void TransferAddressY()
         {
             if (GpuMask.RenderBackground || GpuMask.RenderSprites)
             {
@@ -954,7 +959,7 @@
             }
         }
 
-        private void LoadBackgroundShifters()
+        public void LoadBackgroundShifters()
         {
             BgShifterPatternLo = (ushort)((BgShifterPatternLo & 0xFF00) | BgNextTileLsb);
             BgShifterPatternHi = (ushort)((BgShifterPatternHi & 0xFF00) | BgNextTileMsb);
@@ -963,7 +968,7 @@
             BgShifterAttribHi = (ushort)((BgShifterAttribHi & 0xFF00) | (((BgNextTileAttrib & 0b10) != 0) ? 0xFF : 0x00));
         }
 
-        private void UpdateShifters()
+        public void UpdateShifters()
         {
             if (GpuMask.RenderBackground)
             {
@@ -993,7 +998,7 @@
 
         }
 
-        private byte FlipByte(byte b)
+        public byte FlipByte(byte b)
         {
             b = (byte)((b & 0xF0) >> 4 | (b & 0x0F) << 4);
             b = (byte)((b & 0xCC) >> 2 | (b & 0x33) << 2);
@@ -1001,7 +1006,7 @@
             return b;
         }
 
-        private void SetPixel(int x, int y, int p)
+        public void SetPixel(int x, int y, int p)
         {
             if (x >= 0 && x < GameWidth && y >= 0 && y < GameHeight)
                 SprScreen[y * GameWidth + x] = p;

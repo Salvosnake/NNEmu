@@ -1,21 +1,26 @@
-﻿namespace NNEmu.Hardware
+﻿using Newtonsoft.Json;
+
+namespace NNEmu.Hardware
 {
     public class BUS
     {
         public CPU Cpu;
         public GPU Gpu;
+
+        [JsonIgnore]
         public CARTRIDGE Cart;
+
         public byte[] Controller = new byte[2];
 
-        private byte[] CpuRam = new byte[64 * 1024];
-        private uint SystemClockCounter = 0;
-        private byte[] ControllerStatus = new byte[2];
-        private byte dmaPage = 0x00;
-        private byte dmAddr = 0x00;
-        private byte dmaData = 0x00;
-        private byte tmpAdrM;
-        private bool dmaFlag = true;
-        private bool dmaTransfer = false;
+        public byte[] CpuRam = new byte[64 * 1024];
+        public uint SystemClockCounter = 0;
+        public byte[] ControllerStatus = new byte[2];
+        public byte dmaPage = 0x00;
+        public byte dmAddr = 0x00;
+        public byte dmaData = 0x00;
+        public byte tmpAdrM;
+        public bool dmaFlag = true;
+        public bool dmaTransfer = false;
 
         public BUS(CARTRIDGE cart, int gameWidth, int gameHeight) 
         {
