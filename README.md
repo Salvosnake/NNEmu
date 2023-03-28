@@ -27,6 +27,14 @@ Z -> B
 
 X -> A
 
+F1 -> Snapshot of state.
+
+
+F2 -> Restore snapshot.
+
+
+Space -> Start/Pause Emulation
+
 
 
 TODO:
