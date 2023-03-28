@@ -209,23 +209,23 @@ namespace NNEmu.Software
 
                 //Get data from file snap
                 string tmpData = File.ReadAllText(SnapFileName);
-                //Restore data in BUS
-                SnapShotData snapShotData = JsonConvert.DeserializeObject<SnapShotData>(tmpData);
-                Nes = JsonConvert.DeserializeObject<BUS>(snapShotData.Nes);
-                CARTRIDGE cart = new CARTRIDGE(RomFilePath);
-
-                if (Nes != null)
+                if(tmpData != null)
                 {
-                    Nes.Cart = cart;
-                    if(Nes.Gpu != null)
-                        Nes.Gpu.Cartridge = cart;
-                    
-                    BUS.Bus = Nes;
-                    Nes.Cart.PMapper = GetMapperFromSnap(Nes.Cart.NMapperID,snapShotData.MapperData);
+                    //Restore data in BUS
+                    SnapShotData snapShotData = JsonConvert.DeserializeObject<SnapShotData>(tmpData);
+                    Nes = JsonConvert.DeserializeObject<BUS>(snapShotData.Nes);
+                    CARTRIDGE cart = new CARTRIDGE(RomFilePath);
+
+                    if (Nes != null)
+                    {
+                        Nes.Cart = cart;
+                        if(Nes.Gpu != null)
+                            Nes.Gpu.Cartridge = cart;
+                        
+                        BUS.Bus = Nes;
+                        Nes.Cart.PMapper = GetMapperFromSnap(Nes.Cart.NMapperID,snapShotData.MapperData);
+                    }
                 }
-
-                
-
                 //Resume emulation
                 EmulationStartOrPause();
             }
