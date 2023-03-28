@@ -217,9 +217,8 @@ namespace NNEmu.Software
                     Nes.Cart = cart;
                     if(Nes.Gpu != null)
                         Nes.Gpu.Cartridge = cart;
-
-                    if (Nes.Cpu != null)
-                        Nes.Cpu.Bus = Nes;
+                    
+                    BUS.Bus = Nes;
                 }
 
                 //Resume emulation
@@ -246,6 +245,7 @@ namespace NNEmu.Software
                 string tmpData = JsonConvert.SerializeObject(Nes);
                 //Write on file
                 File.WriteAllText(SnapFileName, tmpData);
+                
                 //Resume emularion
                 EmulationStartOrPause();
             }

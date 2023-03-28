@@ -4,6 +4,7 @@ namespace NNEmu.Hardware
 {
     public class BUS
     {
+        public volatile static BUS Bus;
         public CPU Cpu;
         public GPU Gpu;
 
@@ -28,10 +29,10 @@ namespace NNEmu.Hardware
             for (uint i=0; i< CpuRam.Length; i++)
                 CpuRam[i] = 0x00;
 
-            Cpu = new CPU(this);
+            Cpu = new CPU();
             Cart = cart;
             Gpu = new GPU(cart,gameHeight,gameWidth);
-
+            Bus = this;
         }
 
         public void CpuWrite(ushort addr, byte data)

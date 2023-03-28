@@ -55,13 +55,10 @@ namespace NNEmu.Hardware
         public byte Cycles = 0;
         public ulong CpuClockCount = 0;
 
-        // Riferimento al BUS
-        public BUS Bus;
-
         //OP Table
         INSTRUCTION[] Lookup;
 
-        public CPU(BUS bus)
+        public CPU()
         {
 
             INSTRUCTION[] tmpLook = {
@@ -84,19 +81,18 @@ namespace NNEmu.Hardware
             };
 
             Lookup = tmpLook;
-            Bus = bus;
         }
 
         // Legge 8 byte dal buffer dall'indirizzo a
         public byte Read(ushort a)
         {
-            return Bus.CpuRead(a, false);
+            return BUS.Bus.CpuRead(a, false);
         }
 
         // Scrive 8 byte(d) sul buffer all'indirizzo a
         public void Write(ushort a, byte d)
         {
-            Bus.CpuWrite(a, d);
+            BUS.Bus.CpuWrite(a, d);
         }
 
 
@@ -117,7 +113,7 @@ namespace NNEmu.Hardware
 
                 string sInst = "$" + HexConvert(addr, 4) + ": ";
 
-                byte opcode = Bus.CpuRead((ushort)addr, true); addr++;
+                byte opcode = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                 sInst += Lookup[opcode].Name + " ";
 
                 if (Lookup[opcode].Addrmode == IMP)
@@ -126,66 +122,66 @@ namespace NNEmu.Hardware
                 }
                 else if (Lookup[opcode].Addrmode == IMM)
                 {
-                    value = Bus.CpuRead((ushort)addr, true); addr++;
+                    value = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "#$" + HexConvert(value, 2) + " {IMM}";
                 }
                 else if (Lookup[opcode].Addrmode == ZP0)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     hi = 0x00;
                     sInst += "$" + HexConvert(lo, 2) + " {ZP0}";
                 }
                 else if (Lookup[opcode].Addrmode == ZPX)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     hi = 0x00;
                     sInst += "$" + HexConvert(lo, 2) + ", X {ZPX}";
                 }
                 else if (Lookup[opcode].Addrmode == ZPY)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     hi = 0x00;
                     sInst += "$" + HexConvert(lo, 2) + ", Y {ZPY}";
                 }
                 else if (Lookup[opcode].Addrmode == IZX)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     hi = 0x00;
                     sInst += "($" + HexConvert(lo, 2) + ", X) {IZX}";
                 }
                 else if (Lookup[opcode].Addrmode == IZY)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     hi = 0x00;
                     sInst += "($" + HexConvert(lo, 2) + "), Y {IZY}";
                 }
                 else if (Lookup[opcode].Addrmode == ABS)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
-                    hi = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
+                    hi = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "$" + HexConvert((uint)((ushort)(hi << 8) | lo), 4) + " {ABS}";
                 }
                 else if (Lookup[opcode].Addrmode == ABX)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
-                    hi = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
+                    hi = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "$" + HexConvert((uint)((ushort)(hi << 8) | lo), 4) + ", X {ABX}";
                 }
                 else if (Lookup[opcode].Addrmode == ABY)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
-                    hi = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
+                    hi = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "$" + HexConvert((uint)((ushort)(hi << 8) | lo), 4) + ", Y {ABY}";
                 }
                 else if (Lookup[opcode].Addrmode == IND)
                 {
-                    lo = Bus.CpuRead((ushort)addr, true); addr++;
-                    hi = Bus.CpuRead((ushort)addr, true); addr++;
+                    lo = BUS.Bus.CpuRead((ushort)addr, true); addr++;
+                    hi = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "($" + HexConvert((uint)((ushort)(hi << 8) | lo), 4) + ") {IND}";
                 }
                 else if (Lookup[opcode].Addrmode == REL)
                 {
-                    value = Bus.CpuRead((ushort)addr, true); addr++;
+                    value = BUS.Bus.CpuRead((ushort)addr, true); addr++;
                     sInst += "$" + HexConvert(value, 2) + " [$" + HexConvert((uint)(addr +((sbyte)value)), 4) + "] {REL}";
                 }
 
