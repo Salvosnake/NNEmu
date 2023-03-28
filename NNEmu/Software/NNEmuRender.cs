@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using NNEmu.Mappers;
 
 namespace NNEmu.Software
 {
@@ -209,7 +210,8 @@ namespace NNEmu.Software
                 //Get data from file snap
                 string tmpData = File.ReadAllText(SnapFileName);
                 //Restore data in BUS
-                Nes = JsonConvert.DeserializeObject<BUS>(tmpData);
+                SnapShotData snapShotData = JsonConvert.DeserializeObject<SnapShotData>(tmpData);
+                Nes = JsonConvert.DeserializeObject<BUS>(snapShotData.Nes);
                 CARTRIDGE cart = new CARTRIDGE(RomFilePath);
 
                 if (Nes != null)
@@ -219,11 +221,44 @@ namespace NNEmu.Software
                         Nes.Gpu.Cartridge = cart;
                     
                     BUS.Bus = Nes;
+                    Nes.Cart.PMapper = GetMapperFromSnap(Nes.Cart.NMapperID,snapShotData.MapperData);
                 }
+
+                
 
                 //Resume emulation
                 EmulationStartOrPause();
             }
+        }
+
+        private MAPPER GetMapperFromSnap(int MapperId, string data)
+        {
+            MAPPER? mapper = new MAPPER_000(0,0);
+            if(data != null)
+            {
+                switch (MapperId)
+                {
+                    case 0:
+                        mapper = JsonConvert.DeserializeObject<MAPPER_000>(data);
+                        break;
+                    case 1: 
+                        mapper = JsonConvert.DeserializeObject<MAPPER_001>(data);
+                        break;
+                    case 2:
+                        mapper = JsonConvert.DeserializeObject<MAPPER_002>(data);
+                        break;
+                    case 3: 
+                        mapper = JsonConvert.DeserializeObject<MAPPER_003>(data);
+                        break;
+                    case 4:
+                        mapper = JsonConvert.DeserializeObject<MAPPER_004>(data);
+                        break;
+                    case  66:
+                        mapper = JsonConvert.DeserializeObject<MAPPER_066>(data);
+                        break;
+                }
+            }
+            return mapper;
         }
 
         public void MakeSnapShot()
@@ -242,10 +277,12 @@ namespace NNEmu.Software
                     EmulationStartOrPause();
 
                 //Create snapshot of emulation
-                string tmpData = JsonConvert.SerializeObject(Nes);
+                string tmpBus = JsonConvert.SerializeObject(Nes);
+                string tmpMapper = JsonConvert.SerializeObject(Nes.Cart.GetMapper());
+                SnapShotData snapShotData = new SnapShotData(tmpBus,tmpMapper);
+                string tmpSnap = JsonConvert.SerializeObject(snapShotData);
                 //Write on file
-                File.WriteAllText(SnapFileName, tmpData);
-                
+                File.WriteAllText(SnapFileName, tmpSnap);
                 //Resume emularion
                 EmulationStartOrPause();
             }

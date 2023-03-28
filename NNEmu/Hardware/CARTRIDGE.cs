@@ -23,7 +23,7 @@ namespace NNEmu.Hardware
         public byte[] VPRGMemory;
         public byte[] VCHRMemory;
 
-        private volatile MAPPER PMapper;
+        public volatile MAPPER PMapper;
 
 
         public byte[] header;
